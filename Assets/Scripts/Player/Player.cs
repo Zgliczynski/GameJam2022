@@ -118,6 +118,7 @@ public class Player : SingletonMonobehaviour<Player>
     {
         if (isRunning == true)
         {
+            animator.SetBool("isRunning", isRunning);
             animator.SetFloat("xInput", playerMove.x);
             animator.SetFloat("yInput", playerMove.y);
             animator.SetFloat("mousePositionX", mousePosition.x);
