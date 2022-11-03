@@ -8,8 +8,8 @@ public class Player : SingletonMonobehaviour<Player>
     //Movment
     private float xInput;
     private float yInput;
-    private float xMousePosition;
-    private float yMousePosition;
+    private Vector2 mousePosition;
+    private Vector2 playerMove;
 
     private Camera mainCamera;
     private BoxCollider2D boxCollider;
@@ -18,6 +18,7 @@ public class Player : SingletonMonobehaviour<Player>
     private float movmentSpeed;
 
     private Animator animator;
+    private float lastx, lasty;
 
 
     //Movement Parameters
@@ -42,13 +43,11 @@ public class Player : SingletonMonobehaviour<Player>
     {
         PlayerMovementInput();
         PlayerMovmentWalkInput();
-        
-        EventHandler.CallMovementEvent(xInput, yInput,
-            xMousePosition, yMousePosition,
-            isRunning, isWalking, isIdle, isDashing,
-            idleLeftDown, idleLeftUp, idleRightDown, idleRightUp);
+        AnimationController();
 
-        Debug.Log(mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position);
+
+        //mouse position
+        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
     }
 
     private void FixedUpdate()
@@ -58,10 +57,10 @@ public class Player : SingletonMonobehaviour<Player>
 
     private void PlayerMovment()
     {
-        Vector2 move = new Vector2(xInput * movmentSpeed * Time.deltaTime, yInput * movmentSpeed * Time.deltaTime);
-        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        playerMove = new Vector2(xInput * movmentSpeed * Time.deltaTime, yInput * movmentSpeed * Time.deltaTime);
+        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
 
-        rb.MovePosition(rb.position + move);
+        rb.MovePosition(rb.position + playerMove);
     }
 
     private void PlayerMovementInput()
@@ -92,7 +91,7 @@ public class Player : SingletonMonobehaviour<Player>
             isIdle = true;
         }
 
-        mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
     }
 
     private void PlayerMovmentWalkInput()
@@ -113,5 +112,17 @@ public class Player : SingletonMonobehaviour<Player>
 
             movmentSpeed = Settings.runningSpeed;
         }
+    }
+
+    void AnimationController()
+    {
+        if (isRunning == true)
+        {
+            animator.SetFloat("xInput", playerMove.x);
+            animator.SetFloat("yInput", playerMove.y);
+            animator.SetFloat("mousePositionX", mousePosition.x);
+            animator.SetFloat("mousePositionY", mousePosition.y);
+        }
+
     }
 }
