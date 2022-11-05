@@ -14,6 +14,7 @@ public class Player : SingletonMonobehaviour<Player>
     private Camera mainCamera;
     private BoxCollider2D boxCollider;
     private Rigidbody2D rb;
+    private SpriteRenderer sr;
 
     private float movmentSpeed;
 
@@ -38,21 +39,20 @@ public class Player : SingletonMonobehaviour<Player>
         animator = GetComponent<Animator>();
 
         mainCamera = Camera.main;
+        
     }
     private void Update()
     {
+        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+
         PlayerMovementInput();
         PlayerMovmentWalkInput();
-        AnimationController();
-
-
-        //mouse position
-        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
     }
 
     private void FixedUpdate()
     {
         PlayerMovment();
+        AnimationController();
     }
 
     private void PlayerMovment()
@@ -68,7 +68,7 @@ public class Player : SingletonMonobehaviour<Player>
         xInput = Input.GetAxisRaw("Horizontal");
         yInput = Input.GetAxisRaw("Vertical");
 
-        if(xInput != 0 && yInput != 0)
+        if (xInput != 0 && yInput != 0)
         {
             isRunning = true;
             isWalking = false;
@@ -77,14 +77,14 @@ public class Player : SingletonMonobehaviour<Player>
             movmentSpeed = Settings.runningSpeed;
         }
 
-        if(xInput !=0 || yInput != 0)
+        if (xInput != 0 || yInput != 0)
         {
             isRunning = true;
             isWalking = false;
             isIdle = false;
 
         }
-        else if(xInput == 0 && yInput == 0)
+        else if (xInput == 0 && yInput == 0)
         {
             isRunning = false;
             isWalking = false;
@@ -96,7 +96,7 @@ public class Player : SingletonMonobehaviour<Player>
 
     private void PlayerMovmentWalkInput()
     {
-        if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             isRunning = false;
             isWalking = true;
@@ -114,16 +114,10 @@ public class Player : SingletonMonobehaviour<Player>
         }
     }
 
-    void AnimationController()
-    {
-        if (isRunning == true)
-        {
-            animator.SetBool("isRunning", isRunning);
-            animator.SetFloat("xInput", playerMove.x);
-            animator.SetFloat("yInput", playerMove.y);
-            animator.SetFloat("mousePositionX", mousePosition.x);
-            animator.SetFloat("mousePositionY", mousePosition.y);
-        }
-
+    private void AnimationController()
+    { 
+        float angle = Mathf.Atan2(mousePosition.y, mousePosition.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.down);
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.up);
     }
 }
