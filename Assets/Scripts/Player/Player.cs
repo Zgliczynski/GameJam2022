@@ -21,14 +21,12 @@ public class Player : SingletonMonobehaviour<Player>
     private Animator animator;
 
     //Movement Parameters
+#pragma warning disable 0414
     private bool isIdle;
     private bool isWalking;
     private bool isRunning;
     private bool isDashing;
-    private bool idleLeftDown;
-    private bool idleLeftUp;
-    private bool idleRightDown;
-    private bool idleRightUp;
+#pragma warning disable 0414
 
     protected override void Awake()
     {
