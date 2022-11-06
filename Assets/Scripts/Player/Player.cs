@@ -19,8 +19,6 @@ public class Player : SingletonMonobehaviour<Player>
     private float movmentSpeed;
 
     private Animator animator;
-    private float lastx, lasty;
-
 
     //Movement Parameters
     private bool isIdle;
@@ -39,7 +37,7 @@ public class Player : SingletonMonobehaviour<Player>
         animator = GetComponent<Animator>();
 
         mainCamera = Camera.main;
-        
+
     }
     private void Update()
     {
@@ -115,9 +113,10 @@ public class Player : SingletonMonobehaviour<Player>
     }
 
     private void AnimationController()
-    { 
+    {
         float angle = Mathf.Atan2(mousePosition.y, mousePosition.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.down);
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.up);
     }
+
 }
