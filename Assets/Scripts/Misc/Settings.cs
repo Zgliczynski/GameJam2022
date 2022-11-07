@@ -10,4 +10,7 @@ public static class Settings
     //Guns settings
     public const float gunsRotation = 20f;
     public const float bulletSpeed = 35f;
+
+    //Shooting settings
+    public const float bulletLifeTime = 1.0f;
 }

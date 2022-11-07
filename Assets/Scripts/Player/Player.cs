@@ -15,6 +15,7 @@ public class Player : SingletonMonobehaviour<Player>
     private BoxCollider2D boxCollider;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    private bool FacingRight = true;
 
     private float movmentSpeed;
 
@@ -112,9 +113,22 @@ public class Player : SingletonMonobehaviour<Player>
 
     private void AnimationController()
     {
-        float angle = Mathf.Atan2(mousePosition.y, mousePosition.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.down);
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+        if (mousePosition.x < playerMove.x && FacingRight)
+        {
+            Flip();
+        }
+        else
+        if (mousePosition.x > playerMove.x && !FacingRight)
+        {
+            Flip();
+        }
     }
-
+    private void Flip()
+    {
+        Vector3 tmpScale = transform.localScale;
+        tmpScale.x = -tmpScale.x;
+        transform.localScale = tmpScale;
+        FacingRight = !FacingRight;
+    }
 }
+        
