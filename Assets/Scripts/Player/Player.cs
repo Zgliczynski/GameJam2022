@@ -16,6 +16,7 @@ public class Player : SingletonMonobehaviour<Player>
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private bool FacingRight = true;
+    private bool playerCollision = true;
 
     private float movmentSpeed;
 
@@ -24,10 +25,12 @@ public class Player : SingletonMonobehaviour<Player>
     //Movement Parameters
 #pragma warning disable 0414
     private bool isIdle;
-    private bool isWalking;
     private bool isRunning;
-    private bool isDashing;
 #pragma warning disable 0414
+    private bool canDashing = true;
+
+    //Dashing
+    private float currentDashTime;
 
     protected override void Awake()
     {
@@ -43,7 +46,6 @@ public class Player : SingletonMonobehaviour<Player>
         mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
 
         PlayerMovementInput();
-        PlayerMovmentWalkInput();
     }
 
     private void FixedUpdate()
@@ -68,7 +70,6 @@ public class Player : SingletonMonobehaviour<Player>
         if (xInput != 0 && yInput != 0)
         {
             isRunning = true;
-            isWalking = false;
             isIdle = false;
 
             movmentSpeed = Settings.runningSpeed;
@@ -77,38 +78,16 @@ public class Player : SingletonMonobehaviour<Player>
         if (xInput != 0 || yInput != 0)
         {
             isRunning = true;
-            isWalking = false;
             isIdle = false;
 
         }
         else if (xInput == 0 && yInput == 0)
         {
             isRunning = false;
-            isWalking = false;
             isIdle = true;
         }
 
         Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-    }
-
-    private void PlayerMovmentWalkInput()
-    {
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-        {
-            isRunning = false;
-            isWalking = true;
-            isIdle = false;
-
-            movmentSpeed = Settings.walkingSpeed;
-        }
-        else
-        {
-            isRunning = true;
-            isWalking = false;
-            isIdle = false;
-
-            movmentSpeed = Settings.runningSpeed;
-        }
     }
 
     private void AnimationController()
@@ -130,5 +109,6 @@ public class Player : SingletonMonobehaviour<Player>
         transform.localScale = tmpScale;
         FacingRight = !FacingRight;
     }
+
 }
         

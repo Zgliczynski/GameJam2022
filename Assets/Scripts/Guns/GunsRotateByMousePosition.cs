@@ -12,7 +12,7 @@ public class GunsRotateByMousePosition : MonoBehaviour
         Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Settings.gunsRotation * Time.deltaTime * rotationTime);
 
-        if(angle < -90 || angle > 90)
+        if (angle < -90 || angle > 90)
         {
             transform.localRotation = Quaternion.Euler(180, 180, -angle);
         }
