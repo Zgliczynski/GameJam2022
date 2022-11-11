@@ -19,6 +19,10 @@ public class Player : SingletonMonobehaviour<Player>
     private TrailRenderer tr;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private Transform wallCheck_0;
+    [SerializeField] private LayerMask wallLayer;
+
 
     private bool FacingRight = true;
 
@@ -34,6 +38,14 @@ public class Player : SingletonMonobehaviour<Player>
     private int jumpCount = 0;
     private bool isGrounded;
 
+    //Wall Jump & Wall Slide
+    private bool isWallSliding;
+    private bool isWallJumping;
+    private float wallJumpingDirection;
+    private float wallJumpingTime = 0.2f;
+    private float wallJumpingCounter;
+    private float wallJumpingDuration = 0.4f;
+    private Vector2 wallJumpingPower = new Vector2(7f, 11.5f);
 
     protected override void Awake()
     {
@@ -49,13 +61,18 @@ public class Player : SingletonMonobehaviour<Player>
     {
         mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         CheckGrounded();
+        WallSlide();
+        WallJump();
+        PlayerMovementInput();
+        if (!isWallJumping)
+        {
+            PlayerMovment();
+        }
+        FlipController();
     }
 
     private void FixedUpdate()
     {
-        PlayerMovementInput();
-        PlayerMovment();
-        FlipController();
         PlayerMovementDashInput();
     }
 
@@ -137,10 +154,67 @@ public class Player : SingletonMonobehaviour<Player>
         }
 
     }
-
+    
     private void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, Settings.jumpingForce);
+    }
+
+    //Wall Slide
+    //Don't know how I can do it else, maybe latter
+    private bool IsWalled()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+    }
+    private bool IsWalled_0()
+    {
+        return Physics2D.OverlapCircle(wallCheck_0.position, 0.2f, wallLayer);
+    }
+
+    private void WallSlide()
+    {
+        if(IsWalled() && !isGrounded && xInput != 0 || IsWalled_0() && !isGrounded && xInput != 0)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -Settings.wallSlideSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
+    //Wall Jump
+    private void WallJump()
+    {
+        if (isWallSliding)
+        {
+            isWallJumping = false;
+            wallJumpingDirection = -transform.localScale.x;
+            wallJumpingCounter = wallJumpingTime;
+
+            CancelInvoke(nameof(StopWallJumping));
+        }
+        else
+        {
+            wallJumpingCounter -= Time.deltaTime;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space) && wallJumpingCounter > 0)
+        {
+            isWallJumping = true;
+            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
+            wallJumpingCounter = 0f;
+
+            Invoke(nameof(StopWallJumping), wallJumpingDuration);
+        }
+
+
+    }
+
+    private void StopWallJumping()
+    {
+        isWallJumping = false;
     }
 }
         

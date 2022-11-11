@@ -9,6 +9,7 @@ public static class Settings
     public const float dashTime = 0.2f;
     public const float dashingCooldown = 0.5f;
     public const float jumpingForce = 14f;
+    public const float wallSlideSpeed = 2f;
 
     //Guns settings
     public const float gunsRotation = 20f;
