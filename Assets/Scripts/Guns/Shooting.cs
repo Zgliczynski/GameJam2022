@@ -9,10 +9,14 @@ public class Shooting : MonoBehaviour
 
     private void Update()
     {
-        Shoot();
+        
         DestroyBulletDelayed();
     }
-    
+    private void FixedUpdate()
+    {
+        Shoot();
+    }
+
     private void Shoot()
     {
         Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition);

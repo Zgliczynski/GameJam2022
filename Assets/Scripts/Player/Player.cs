@@ -11,32 +11,36 @@ public class Player : SingletonMonobehaviour<Player>
     private Vector2 mousePosition;
     private Vector2 playerMove;
 
+    //Parameters
     private Camera mainCamera;
     private BoxCollider2D boxCollider;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    private TrailRenderer tr;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
+
     private bool FacingRight = true;
-    private bool playerCollision = true;
 
-    private float movmentSpeed;
-
+    //Animator
     private Animator animator;
 
-    //Movement Parameters
-#pragma warning disable 0414
-    private bool isIdle;
-    private bool isRunning;
-#pragma warning disable 0414
+    //Dashing Parameters
     private bool canDashing = true;
+    private bool isDashing;
 
-    //Dashing
-    private float currentDashTime;
+    //Jumping Parameters
+    private int extraJump = 1;
+    private int jumpCount = 0;
+    private bool isGrounded;
+
 
     protected override void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        tr = GetComponent<TrailRenderer>();
 
         mainCamera = Camera.main;
 
@@ -44,53 +48,45 @@ public class Player : SingletonMonobehaviour<Player>
     private void Update()
     {
         mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-
-        PlayerMovementInput();
+        CheckGrounded();
     }
 
     private void FixedUpdate()
     {
+        PlayerMovementInput();
         PlayerMovment();
-        AnimationController();
+        FlipController();
+        PlayerMovementDashInput();
     }
 
     private void PlayerMovment()
     {
-        playerMove = new Vector2(xInput * movmentSpeed * Time.deltaTime, yInput * movmentSpeed * Time.deltaTime);
-        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-
-        rb.MovePosition(rb.position + playerMove);
+        rb.velocity = new Vector2(xInput * Settings.runningSpeed, rb.velocity.y);
     }
 
     private void PlayerMovementInput()
     {
         xInput = Input.GetAxisRaw("Horizontal");
-        yInput = Input.GetAxisRaw("Vertical");
-
-        if (xInput != 0 && yInput != 0)
-        {
-            isRunning = true;
-            isIdle = false;
-
-            movmentSpeed = Settings.runningSpeed;
-        }
-
-        if (xInput != 0 || yInput != 0)
-        {
-            isRunning = true;
-            isIdle = false;
-
-        }
-        else if (xInput == 0 && yInput == 0)
-        {
-            isRunning = false;
-            isIdle = true;
-        }
 
         Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded || Input.GetKeyDown(KeyCode.Space) && jumpCount < extraJump)
+        {
+            Jump();
+            jumpCount++;
+        }
     }
 
-    private void AnimationController()
+    private void PlayerMovementDashInput()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            StartCoroutine(Dash());
+        }
+    }
+
+    //Flip
+    private void FlipController()
     {
         if (mousePosition.x < playerMove.x && FacingRight)
         {
@@ -110,5 +106,41 @@ public class Player : SingletonMonobehaviour<Player>
         FacingRight = !FacingRight;
     }
 
+    //Dash
+    private IEnumerator Dash()
+    {
+        canDashing = false;
+        isDashing = true;
+        float orginalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        rb.velocity = new Vector2(rb.velocity.x * Settings.playerDashSpeed, 0f);
+        tr.emitting = true;
+        yield return new WaitForSeconds(Settings.dashTime);
+        tr.emitting = false;
+        rb.gravityScale = orginalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(Settings.dashingCooldown);
+        canDashing = true;
+    }
+
+    //Jump
+    private void CheckGrounded()
+    {
+        if (Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer))
+        {
+            jumpCount = 0;
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+
+    }
+
+    private void Jump()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, Settings.jumpingForce);
+    }
 }
         
