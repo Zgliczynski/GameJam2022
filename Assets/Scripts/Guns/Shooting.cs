@@ -9,7 +9,7 @@ public class Shooting : MonoBehaviour
 
     private void Update()
     {
-        
+
         DestroyBulletDelayed();
     }
     private void FixedUpdate()
@@ -19,7 +19,7 @@ public class Shooting : MonoBehaviour
 
     private void Shoot()
     {
-        Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
 
@@ -30,7 +30,7 @@ public class Shooting : MonoBehaviour
             bulletClone.transform.rotation = Quaternion.Euler(0, 0, angle);
 
             Rigidbody2D rb = bulletClone.GetComponent<Rigidbody2D>();
-            rb.AddForce(firePoint.right * Settings.bulletSpeed, ForceMode2D.Impulse);
+            rb.velocity = new Vector2(direction.x, direction.y).normalized * Settings.bulletSpeed;
         }
     }
 
@@ -39,5 +39,5 @@ public class Shooting : MonoBehaviour
         //Destroy Bullet after 2 sec
         Destroy(GameObject.Find("bullet_1(Clone)"), Settings.bulletLifeTime);
     }
-    
+
 }
