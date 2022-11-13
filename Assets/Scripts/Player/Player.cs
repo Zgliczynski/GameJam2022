@@ -37,6 +37,11 @@ public class Player : SingletonMonobehaviour<Player>
     private int extraJump = 1;
     private int jumpCount = 0;
     private bool isGrounded;
+    
+    private float coyoteTime = 0.2f;
+    private float coyoteTimeCounter;
+    private float jumpBufferTime = 0.2f;
+    private float jumpBuffeTimeCounter;
 
     //Wall Jump & Wall Slide
     private bool isWallSliding;
@@ -60,6 +65,8 @@ public class Player : SingletonMonobehaviour<Player>
     private void Update()
     {
         mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        CoyoteTime();
+        JumpBuffer();
         CheckGrounded();
         WallSlide();
         WallJump();
@@ -87,10 +94,11 @@ public class Player : SingletonMonobehaviour<Player>
 
         Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded || Input.GetKeyDown(KeyCode.Space) && jumpCount < extraJump)
+        if (coyoteTimeCounter < 0 && jumpBuffeTimeCounter > 0f && isGrounded || Input.GetButtonDown("Jump") && jumpCount < extraJump)
         {
             Jump();
             jumpCount++;
+            coyoteTimeCounter = 0f;
         }
     }
 
@@ -200,7 +208,7 @@ public class Player : SingletonMonobehaviour<Player>
             wallJumpingCounter -= Time.deltaTime;
         }
 
-        if(Input.GetKeyDown(KeyCode.Space) && wallJumpingCounter > 0)
+        if(Input.GetButtonDown("Jump") && wallJumpingCounter > 0)
         {
             isWallJumping = true;
             rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
@@ -215,6 +223,30 @@ public class Player : SingletonMonobehaviour<Player>
     private void StopWallJumping()
     {
         isWallJumping = false;
+    }
+
+    private void CoyoteTime()
+    {
+        if (isGrounded)
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+    }
+
+    private void JumpBuffer()
+    {
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpBuffeTimeCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBuffeTimeCounter -= Time.deltaTime;
+        }
     }
 }
         
